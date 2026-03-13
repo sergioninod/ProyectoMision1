@@ -62,24 +62,38 @@ if (contactForm) {
         btn.disabled = true;
         btn.style.opacity = '0.7';
         
-        // Simulate an API call
-        setTimeout(() => {
-            btn.textContent = 'Mensaje Enviado';
-            btn.style.backgroundColor = '#2ecc71'; // Green for success
+        // Send data to Formspree
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                btn.textContent = 'Mensaje Enviado';
+                btn.style.backgroundColor = '#2ecc71'; // Green for success
+                btn.style.color = '#fff';
+                contactForm.reset();
+            } else {
+                throw new Error('Error en el envío');
+            }
+        }).catch(error => {
+            btn.textContent = 'Error al Enviar';
+            btn.style.backgroundColor = '#e74c3c'; // Red for error
             btn.style.color = '#fff';
-            
-            // Reset form
-            contactForm.reset();
-            
+        }).finally(() => {
             // Revert button after 3 seconds
             setTimeout(() => {
                 btn.textContent = initialBtnText;
                 btn.disabled = false;
                 btn.style.opacity = '1';
-                btn.style.backgroundColor = ''; // Reverts to variables
+                btn.style.backgroundColor = ''; 
                 btn.style.color = '';
             }, 3000);
-        }, 1500);
+        });
     });
 }
 
