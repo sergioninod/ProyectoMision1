@@ -30,14 +30,14 @@ window.addEventListener('scroll', () => {
 
 // Smooth Scroll for Navigation Links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         const targetId = this.getAttribute('href');
-        if(targetId === '#') return;
-        
+        if (targetId === '#') return;
+
         const targetElement = document.querySelector(targetId);
-        
+
         if (targetElement) {
             window.scrollTo({
                 top: targetElement.offsetTop - 80, // Offset for navbar
@@ -51,20 +51,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 const contactForm = document.getElementById('contact-form');
 
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         // Basic feedback animation
         const initialBtnText = this.querySelector('button').textContent;
         const btn = this.querySelector('button');
-        
+
         btn.textContent = 'Enviando...';
         btn.disabled = true;
         btn.style.opacity = '0.7';
-        
+
         // Send data to Formspree
         const formData = new FormData(this);
-        
+
         fetch(this.action, {
             method: 'POST',
             body: formData,
@@ -90,11 +90,80 @@ if (contactForm) {
                 btn.textContent = initialBtnText;
                 btn.disabled = false;
                 btn.style.opacity = '1';
-                btn.style.backgroundColor = ''; 
+                btn.style.backgroundColor = '';
                 btn.style.color = '';
             }, 3000);
         });
     });
+}
+
+// COMENTARIOS CON SUPABASE
+
+const commentForm = document.getElementById("comment-form");
+
+if (commentForm) {
+
+    commentForm.addEventListener("submit", async function (e) {
+
+        e.preventDefault();
+
+        const btn = this.querySelector("button");
+        const initialText = btn.textContent;
+
+        btn.textContent = "Enviando...";
+        btn.disabled = true;
+
+        const comentario = document.getElementById("comentario").value;
+
+        const ratingSelected = document.querySelector('input[name="rating"]:checked');
+
+        if (!ratingSelected) {
+
+            alert("Debes seleccionar una calificación de al menos 1 estrella.");
+
+            btn.textContent = initialText;
+            btn.disabled = false;
+
+            return;
+        }
+
+        const calificacion = ratingSelected.value;
+
+        try {
+
+            const { data, error } = await supabaseClient
+                .from("comentario")
+                .insert([
+                    {
+                        comentario: comentario,
+                        calificacion: calificacion
+                    }
+                ]);
+
+            if (error) throw error;
+
+            btn.textContent = "Comentario Enviado";
+            btn.style.backgroundColor = "#2ecc71";
+
+            commentForm.reset();
+
+        } catch (error) {
+
+            console.error(error);
+
+            btn.textContent = "Error al Enviar";
+            btn.style.backgroundColor = "#e74c3c";
+
+        }
+
+        setTimeout(() => {
+            btn.textContent = initialText;
+            btn.disabled = false;
+            btn.style.backgroundColor = "";
+        }, 3000);
+
+    });
+
 }
 
 // Hover effects for service cards (optional subtle JS reinforcement)
